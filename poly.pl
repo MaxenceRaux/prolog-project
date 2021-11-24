@@ -11,7 +11,7 @@ afficherCoeff(V):-
 
 afficher(Poly):-
     simplifier(Poly, Simpl),
-    afficherPoly(Simpl)
+    afficherPoly(Simpl).
 
 
 afficherX(0).
@@ -68,6 +68,9 @@ insererTri([Coeff, Pow],[[Coeff2, Pow2]|L1],[[Coeff2, Pow2]|L2]):-
 insererTri([Coeff, Pow],[[Coeff2, Pow2]|L1],[[Coeff, Pow],[Coeff2, Pow2]|L1]):- Pow >= Pow2.
 
 
+precompacter([[Coeff, Pow] | Poly], Res):-
+    compacter([Coeff, Pow], Poly, Res).
+
 compacter(A, [], [A]).
 
 compacter([Coeff, Pow], [[Coeff2, Pow] | Poly], Res):-
@@ -78,3 +81,14 @@ compacter([Coeff, Pow], [[Coeff2, Pow2] | Poly], [[Coeff, Pow] | Res]) :-
     Pow \== Pow2,
     compacter([Coeff2, Pow2], Poly, Res).
 
+retireCoeffNul([], []).
+retireCoeffNul([[Coeff, Pow] | Poly], [[Coeff, Pow] | Res]) :-
+    Coeff \== 0,
+    retireCoeffNul(Poly, Res).
+retireCoeffNul([[0, _] | Poly], Res):-
+    retireCoeffNul(Poly, Res).
+
+simplifier(Poly, Simpl):-
+    triInser(Poly, Tri),
+    precompacter(Tri, Comp),
+    retireCoeffNul(Comp, Simpl).
