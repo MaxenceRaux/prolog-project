@@ -90,9 +90,63 @@ retireCoeffNul([[0, _] | Poly], Res):-
 
 simplifier(Poly, Simpl):-
     triInser(Poly, Tri),
-    precompacter(Tri, Comp),
+    precompacter(Tri, Comp),!,
     retireCoeffNul(Comp, Simpl).
 
 
 evaluerMonome([Coeff, Pow], Val, Res):-
     Res is Coeff * Val ** Pow.
+
+evaluer([], _, 0).
+evaluer([Monome | Poly], Val, Res):-
+    evaluerMonome(Monome, Val, Res2),
+    evaluer(Poly, Val, Res3),
+    Res is Res2 + Res3.
+
+deriveMonome([_, 0], [0, 0]):-!.
+deriveMonome([Coeff, Pow], [Coeff2, Pow2]):-
+    Pow2 is Pow - 1,
+    Coeff2 is Coeff * Pow.
+
+derivePoly([], []).
+derivePoly([Monome | Poly], [MonomeD | PolyD]):-
+    deriveMonome(Monome, MonomeD),
+    derivePoly(Poly, PolyD).
+
+derive(Poly, PolyRes):-
+    derivePoly(Poly, PolyDerive),
+    simplifier(PolyDerive, PolyRes).
+
+
+somme(Poly1, Poly2, Res):-
+    append(Poly1, Poly2, Poly3),
+    simplifier(Poly3, Res).
+
+
+soustraction(Poly1, Poly2, Res):-
+    multiplieMonome([-1, 0], Poly2, Poly3),
+    somme(Poly1, Poly3, Res).
+
+multiplieMonome(_, [], []).
+multiplieMonome([Coeff, Pow], [[Coeff2, Pow2] | Poly], [[Coeff3, Pow3] | Res]):-
+    Coeff3 is Coeff * Coeff2,
+    Pow3 is Pow + Pow2,
+    multiplieMonome([Coeff, Pow], Poly, Res).
+
+produit([[Coeff,Pow]|Poly1],Poly2,Poly) :-
+		multiplieMonome([Coeff,Pow],Poly2,Poly3),
+		produit(Poly1,Poly2,Poly4),
+		somme(Poly3,Poly4,Poly).
+produit([],_,[]).
+
+%%% PARTIE 2 %%%
+
+:-op(700,xfy,[+,-,*]).
+:-op(900,fy,[simp,deri]).
+:-op(800,xfx,est).
+
+est(X,+(A,B)):-somme(A,B,R),write(R).
+est(X,-(A,B)):-soustraction(A,B,R),write(R).
+est(X,*(A,B)):-produit(A,B,R),write(R).
+simp(X):-simplifier(X,XS),write(XS).
+deri(X):-derivative(X,XS),write(XS).
