@@ -9,6 +9,11 @@ afficherCoeff(-1):-
 afficherCoeff(V):-
     print(V).
 
+afficher(Poly):-
+    simplifier(Poly, Simpl),
+    afficherPoly(Simpl)
+
+
 afficherX(0).
 afficherX(1):-
     print(x).
@@ -17,22 +22,22 @@ afficherX(V):-
     print(^),
     print(V).
 
-afficher([]).
-afficher([M]):-
+afficherPoly([]).
+afficherPoly([M]):-
     afficherMonome(M).
-afficher([M1, [V, P] | L]):-
+afficherPoly([M1, [V, P] | L]):-
     V > 0,!,
     afficherMonome(M1),
     print(+),
     afficher([[V, P] | L]).
 
-afficher([M1, [V, P] | L]):-
+afficherPoly([M1, [V, P] | L]):-
     V == 0,!,
     afficherMonome(M1),
     print(+),
     afficher(L).
 
-afficher([M1, [V, P] | L]):-
+afficherPoly([M1, [V, P] | L]):-
     V < 0,!,
     afficherMonome(M1),
     afficher([[V, P] | L]).
@@ -42,4 +47,34 @@ afficher([M1, [V, P] | L]):-
 % suppression des même facteurs
 % trier +gd au +pt
 
-simplifier().
+
+%poly en param, et ordonné par ordre de coeff
+
+% trier les puissances
+% compacter
+% virer coeff nuls
+
+% Tri insertion :
+triInser([],[]).
+triInser([X|L1],L2):-
+    triInser(L1,L3),
+    insererTri(X,L3,L2).
+
+insererTri(X,[],[X]).
+insererTri([Coeff, Pow],[[Coeff2, Pow2]|L1],[[Coeff2, Pow2]|L2]):-
+    Pow<Pow2,
+    insererTri([Coeff, Pow],L1,L2).
+
+insererTri([Coeff, Pow],[[Coeff2, Pow2]|L1],[[Coeff, Pow],[Coeff2, Pow2]|L1]):- Pow >= Pow2.
+
+
+compacter(A, [], [A]).
+
+compacter([Coeff, Pow], [[Coeff2, Pow] | Poly], Res):-
+    Coeff3 is +(Coeff , Coeff2),
+    compacter([Coeff3, Pow], Poly, Res).
+
+compacter([Coeff, Pow], [[Coeff2, Pow2] | Poly], [[Coeff, Pow] | Res]) :-
+    Pow \== Pow2,
+    compacter([Coeff2, Pow2], Poly, Res).
+
