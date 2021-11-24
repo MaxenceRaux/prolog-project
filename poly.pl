@@ -92,3 +92,7 @@ simplifier(Poly, Simpl):-
     triInser(Poly, Tri),
     precompacter(Tri, Comp),
     retireCoeffNul(Comp, Simpl).
+
+
+evaluerMonome([Coeff, Pow], Val, Res):-
+    Res is Coeff * Val ** Pow.
