@@ -175,7 +175,7 @@ polynome([[_|_]|_]).
 :-op(600,xfy,[*]).
 :-op(650,xfy,[+]).
 :-op(700,yfx,[-]).
-:-op(750,fx,[simp,deri]).
+:-op(750,fy,[simp,deri]).
 :-op(800,xfx,est).
 
 %%%%% opérateur est %%%%%
