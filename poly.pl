@@ -1,17 +1,34 @@
-afficherMonome([0, _]).
-afficherMonome([V, P]):-
-    afficherCoeff(V),
-    afficherX(P).
+/*
+Projet de Maxence Raux
 
-afficherCoeff(1).
+Toutes les fonctionnalités demandées sont implémentées.
+Pour bien effectuer les differentes opérations, un appel à la méthode "simplifier" est effectué en début d'opération
+Cela a cependant un impact sur l'execution de l'opération.
+Par exemple : 
+    L'appel somme([[1,1]], [[1,1]], R) fonctionnera correctement
+    Mais l'appel somme([[1,1]], B, [[2,1]]) echouera.
+*/
+
+
+%%%%% Fonction d'affichage %%%%%
+afficherMonome([0, _]):-!.
+afficherMonome([V, P]):-
+    P > 0,
+    afficherCoeff(V),
+    afficherX(P),!.
+
+afficherMonome([V, 0]):-
+    print(V),!.
+
+afficherCoeff(1):-!.
 afficherCoeff(-1):-
-    print(-).
+    print(-),!.
 afficherCoeff(V):-
     print(V).
 
 afficher(Poly):-
     simplifier(Poly, Simpl),
-    afficherPoly(Simpl).
+    afficherPoly(Simpl),!.
 
 
 afficherX(0).
@@ -31,7 +48,7 @@ afficherPoly([M1, [V, P] | L]):-
     print(+),
     afficher([[V, P] | L]).
 
-afficherPoly([M1, [V, P] | L]):-
+afficherPoly([M1, [V, _] | L]):-
     V == 0,!,
     afficherMonome(M1),
     print(+),
@@ -42,19 +59,8 @@ afficherPoly([M1, [V, P] | L]):-
     afficherMonome(M1),
     afficher([[V, P] | L]).
 
-% parcours 1 tout les elt
-% parcours 2 elt de meme degres + somme facteur
-% suppression des même facteurs
-% trier +gd au +pt
 
-
-%poly en param, et ordonné par ordre de coeff
-
-% trier les puissances
-% compacter
-% virer coeff nuls
-
-% Tri insertion :
+%%%%% Tri insertion sur les degres d'un polynome %%%%%%
 triInser([],[]).
 triInser([X|L1],L2):-
     triInser(L1,L3),
@@ -67,7 +73,7 @@ insererTri([Coeff, Pow],[[Coeff2, Pow2]|L1],[[Coeff2, Pow2]|L2]):-
 
 insererTri([Coeff, Pow],[[Coeff2, Pow2]|L1],[[Coeff, Pow],[Coeff2, Pow2]|L1]):- Pow >= Pow2.
 
-
+%%%%% Compactage des monomes consecutifs de meme degrés %%%%%
 precompacter([[Coeff, Pow] | Poly], Res):-
     compacter([Coeff, Pow], Poly, Res).
 
@@ -81,6 +87,8 @@ compacter([Coeff, Pow], [[Coeff2, Pow2] | Poly], [[Coeff, Pow] | Res]) :-
     Pow \== Pow2,
     compacter([Coeff2, Pow2], Poly, Res).
 
+%%%%% Simplification %%%%%%
+
 retireCoeffNul([], []).
 retireCoeffNul([[Coeff, Pow] | Poly], [[Coeff, Pow] | Res]) :-
     Coeff \== 0,
@@ -93,6 +101,7 @@ simplifier(Poly, Simpl):-
     precompacter(Tri, Comp),!,
     retireCoeffNul(Comp, Simpl).
 
+%%%%% evaluation de polynome %%%%%
 
 evaluerMonome([Coeff, Pow], Val, Res):-
     Res is Coeff * Val ** Pow.
@@ -102,6 +111,8 @@ evaluer([Monome | Poly], Val, Res):-
     evaluerMonome(Monome, Val, Res2),
     evaluer(Poly, Val, Res3),
     Res is Res2 + Res3.
+
+%%%%% dérivation de polynome %%%%%
 
 deriveMonome([_, 0], [0, 0]):-!.
 deriveMonome([Coeff, Pow], [Coeff2, Pow2]):-
@@ -117,15 +128,19 @@ derive(Poly, PolyRes):-
     derivePoly(Poly, PolyDerive),
     simplifier(PolyDerive, PolyRes).
 
+%%%%% somme de polynome %%%%%
 
 somme(Poly1, Poly2, Res):-
     append(Poly1, Poly2, Poly3),
     simplifier(Poly3, Res).
 
+%%%%% soustraction de polynome %%%%%
 
 soustraction(Poly1, Poly2, Res):-
     multiplieMonome([-1, 0], Poly2, Poly3),
     somme(Poly1, Poly3, Res).
+
+%%%%% produit de polynome %%%%%
 
 multiplieMonome(_, [], []).
 multiplieMonome([Coeff, Pow], [[Coeff2, Pow2] | Poly], [[Coeff3, Pow3] | Res]):-
@@ -139,9 +154,14 @@ produit([[Coeff,Pow]|Poly1],Poly2,Poly) :-
 		somme(Poly3,Poly4,Poly).
 produit([],_,[]).
 
+%%%%% detection de polynome %%%%%
+
+polynome([]).
+polynome([[_|_]|_]).
 
 %%% PARTIE 2 %%%
 
+%%%%% création des priorités %%%%%
 
 :-op(600,xfy,[*]).
 :-op(650,xfy,[+]).
@@ -149,24 +169,25 @@ produit([],_,[]).
 :-op(750,fy,[simp,deri]).
 :-op(800,xfx,est).
 
-
+%%%%% opérateur est %%%%%
 
 est(X,+(A,B)):-
     est(X1, A),
     est(X2, B),
-    somme(X1,X2,X), !.
+    somme(X1,X2,X),!.
 est(X,-(A,B)):-
     est(X1, A),
     est(X2, B),
-    soustraction(X1,X2,X), !.
+    soustraction(X1,X2,X),!.
 est(X,*(A,B)):-
     est(X1, A),
     est(X2, B),
-    produit(X1,X2,X), !.
+    produit(X1,X2,X),!.
 est(X, simp(A)):-
     est(X1, A),
-    simplifier(X1, X), !.
+    simplifier(X1, X),!.
 est(X, deri(A)):-
     est(X1, A),
-    derive(X1, X), !.
-est(X, X).
+    derive(X1, X),!.
+est(X, X):-
+    polynome(X).
