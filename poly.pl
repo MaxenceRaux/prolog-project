@@ -139,14 +139,34 @@ produit([[Coeff,Pow]|Poly1],Poly2,Poly) :-
 		somme(Poly3,Poly4,Poly).
 produit([],_,[]).
 
+
 %%% PARTIE 2 %%%
 
-:-op(700,xfy,[+,-,*]).
-:-op(900,fy,[simp,deri]).
+
+:-op(600,xfy,[*]).
+:-op(650,xfy,[+]).
+:-op(700,yfx,[-]).
+:-op(750,fy,[simp,deri]).
 :-op(800,xfx,est).
 
-est(X,+(A,B)):-somme(A,B,R),write(R).
-est(X,-(A,B)):-soustraction(A,B,R),write(R).
-est(X,*(A,B)):-produit(A,B,R),write(R).
-simp(X):-simplifier(X,XS),write(XS).
-deri(X):-derivative(X,XS),write(XS).
+
+
+est(X,+(A,B)):-
+    est(X1, A),
+    est(X2, B),
+    somme(X1,X2,X), !.
+est(X,-(A,B)):-
+    est(X1, A),
+    est(X2, B),
+    soustraction(X1,X2,X), !.
+est(X,*(A,B)):-
+    est(X1, A),
+    est(X2, B),
+    produit(X1,X2,X), !.
+est(X, simp(A)):-
+    est(X1, A),
+    simplifier(X1, X), !.
+est(X, deri(A)):-
+    est(X1, A),
+    derive(X1, X), !.
+est(X, X).
