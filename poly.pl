@@ -7,6 +7,15 @@ Cela a cependant un impact sur l'execution de l'opération.
 Par exemple : 
     L'appel somme([[1,1]], [[1,1]], R) fonctionnera correctement
     Mais l'appel somme([[1,1]], B, [[2,1]]) echouera.
+
+Quelques exemples d'applications:
+    afficher([[-1,0],[2,1],[3,2],[3,1]]).
+    P est simp [[-1,0],[2,1],[3,2],[3,1]].
+    P est [ [1, 0] , [-1,1] , [0, 2] , [2,3] ] + [ [-1, 0] , [2,1] , [3, 2] ].
+    P est [ [1, 0] , [-1,1] , [0, 2] , [2,3] ] - [ [-1, 0] , [2,1] , [3, 2] ].
+    P est [ [1, 0] , [-1,1] , [0, 2] , [2,3] ] * [ [-1, 0] , [2,1] , [3, 2] ].
+    P est deri [[-1,0],[2,1],[3,2]].
+
 */
 
 
@@ -166,7 +175,7 @@ polynome([[_|_]|_]).
 :-op(600,xfy,[*]).
 :-op(650,xfy,[+]).
 :-op(700,yfx,[-]).
-:-op(750,fy,[simp,deri]).
+:-op(750,fx,[simp,deri]).
 :-op(800,xfx,est).
 
 %%%%% opérateur est %%%%%
